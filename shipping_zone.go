@@ -81,8 +81,8 @@ type CarrierShippingRateProvider struct {
 	Id               uint64            `json:"id,omitempty"`
 	CarrierServiceId uint64            `json:"carrier_service_id,omitempty"`
 	ShippingZoneId   uint64            `json:"shipping_zone_id,omitempty"`
-	FlatModifier     *decimal.Decimal  `json:"flat_modifier,omitempty"`
-	PercentModifier  *decimal.Decimal  `json:"percent_modifier,omitempty"`
+	FlatModifier     FlexDecimal       `json:"flat_modifier,omitempty"`
+	PercentModifier  FlexDecimal       `json:"percent_modifier,omitempty"`
 	ServiceFilter    map[string]string `json:"service_filter,omitempty"`
 }
 
