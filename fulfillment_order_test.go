@@ -65,6 +65,26 @@ func TestFulfillmentOrderGet(t *testing.T) {
 	}
 }
 
+func TestFulfillmentOrderFulfillments(t *testing.T) {
+	setup()
+	defer teardown()
+
+	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/fulfillment_orders/255858046/fulfillments.json", client.pathPrefix),
+		httpmock.NewStringResponder(200, `{"fulfillments": [{"id":1},{"id":2}]}`))
+
+	fulfillmentOrderService := &FulfillmentOrderServiceOp{client: client}
+
+	fulfillments, err := fulfillmentOrderService.Fulfillments(context.Background(), 255858046)
+	if err != nil {
+		t.Errorf("FulfillmentOrder.Fulfillments returned error: %v", err)
+	}
+
+	expected := []Fulfillment{{Id: 1}, {Id: 2}}
+	if !reflect.DeepEqual(fulfillments, expected) {
+		t.Errorf("FulfillmentOrder.Fulfillments returned %+v, expected %+v", fulfillments, expected)
+	}
+}
+
 func TestFulfillmentOrderCancel(t *testing.T) {
 	setup()
 	defer teardown()
