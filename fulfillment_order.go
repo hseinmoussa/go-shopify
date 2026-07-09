@@ -12,6 +12,7 @@ import (
 type FulfillmentOrderService interface {
 	List(context.Context, uint64, interface{}) ([]FulfillmentOrder, error)
 	Get(context.Context, uint64, interface{}) (*FulfillmentOrder, error)
+	Fulfillments(context.Context, uint64) ([]Fulfillment, error)
 	Cancel(context.Context, uint64) (*FulfillmentOrder, error)
 	Close(context.Context, uint64, string) (*FulfillmentOrder, error)
 	Hold(context.Context, uint64, bool, FulfillmentOrderHoldReason, string) (*FulfillmentOrder, error)
@@ -179,6 +180,19 @@ func (s *FulfillmentOrderServiceOp) Get(ctx context.Context, fulfillmentId uint6
 	resource := new(FulfillmentOrderResource)
 	err := s.client.Get(ctx, path, resource, options)
 	return resource.FulfillmentOrder, err
+}
+
+// Fulfillments lists the fulfillments created for a specific fulfillment order.
+// Unlike FulfillmentService.List (scoped to an order, so it returns every fulfillment on a
+// possibly-split order), this is scoped to a single fulfillment order — the caller gets back
+// exactly the fulfillments that belong to that fulfillment order.
+// https://shopify.dev/docs/api/admin-rest/2023-01/resources/fulfillment#get-fulfillment-orders-fulfillment-order-id-fulfillments
+func (s *FulfillmentOrderServiceOp) Fulfillments(ctx context.Context, fulfillmentOrderId uint64) ([]Fulfillment, error) {
+	prefix := FulfillmentOrderPathPrefix("fulfillment_orders", fulfillmentOrderId)
+	path := fmt.Sprintf("%s/fulfillments.json", prefix)
+	resource := new(FulfillmentsResource)
+	err := s.client.Get(ctx, path, resource, nil)
+	return resource.Fulfillments, err
 }
 
 // Cancel cancels a fulfillment order
